@@ -14,6 +14,7 @@ public:
 	matrix operator*(matrix const &other);
 	matrix operator*(double d);
 	matrix operator+(matrix const &other);
+	matrix operator-(matrix const &other);
 	matrix transpose();
 	double getValue(int row, int column);
 	std::string toString();
@@ -22,5 +23,6 @@ public:
 	int getColumns()const;
 	bool operator==(const matrix &other) const;
 	~matrix();
+	double determinant(double ** A, int n);
 };
 

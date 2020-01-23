@@ -9,8 +9,17 @@ gridGenerator::gridGenerator(data *dataCopy)
 	this->globalData.deltaH = dataCopy->H / (dataCopy->nodeCountH - 1);
 	this->globalData.deltaW = dataCopy->W / (dataCopy->nodeCountW - 1);
 }
+void gridGenerator::genGridManual()
+{
+	nodes.push_back(new node(0, 0, 0, 0, true));
+	nodes.push_back(new node(1, 0, 0.025, 0, true));
+	nodes.push_back(new node(2, 0, 0.025, 0.025, false));
+	nodes.push_back(new node(3, 0, 0, 0.025, false));
+	elements.push_back(element(0, nodes));
+}
 void gridGenerator::generateGrid()
 {
+	//genGridManual();	//please delete this
 	int nodeCount = globalData.nodeCountH * globalData.nodeCountW;
 	nodes.reserve(nodeCount);
 	for (int i = 0; i < nodeCount; i++)
@@ -82,5 +91,16 @@ void gridGenerator::printElements()
 	for (element e : elements)
 	{
 		e.print();
+	}
+}
+
+void gridGenerator::updateGrid()
+{
+	matrix H(this->nodes.size(), this->nodes.size());
+	matrix C(this->nodes.size(), this->nodes.size());
+	for (element e : elements)
+	{
+		matrix Hl = e.getH();
+
 	}
 }

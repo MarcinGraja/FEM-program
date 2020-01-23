@@ -73,7 +73,7 @@ matrix matrix::operator+(matrix const &other)
 {
 	if (getRows() != other.getRows()|| getColumns() != other.getColumns())
 	{
-		throw ("invalid size for matrix addition\n");
+		throw std::invalid_argument("invalid size for matrix addition\n");
 	}
 	matrix m(getRows(), getColumns());
 	for (int row = 0; row < getRows(); row++)
@@ -84,6 +84,23 @@ matrix matrix::operator+(matrix const &other)
 		}
 	}
 	return m;
+}
+matrix matrix::operator-(matrix const & other)
+{
+	if (getRows() != other.getRows() || getColumns() != other.getColumns())
+	{
+		throw std::invalid_argument("invalid size for matrix addition\n");
+	}
+	matrix m(getRows(), getColumns());
+	for (int row = 0; row < getRows(); row++)
+	{
+		for (int column = 0; column < getColumns(); column++)
+		{
+			m.data.at(row).at(column) = data.at(row).at(column) - other.data.at(row).at(column);
+		}
+	}
+	return m;
+	return matrix();
 }
 matrix matrix::transpose()
 {
@@ -133,4 +150,65 @@ bool matrix::operator==(const matrix &other)const
 }
 matrix::~matrix()
 {
+}
+//shamelessly stolen from https://www.geeksforgeeks.org/adjoint-inverse-matrix/
+void getCofactor(double ** A, double** temp, int p, int q, int n)
+{
+	int i = 0, j = 0;
+
+	// Looping for each element of the matrix 
+	for (int row = 0; row < n; row++)
+	{
+		for (int col = 0; col < n; col++)
+		{
+			//  Copying into temporary matrix only those element 
+			//  which are not in given row and column 
+			if (row != p && col != q)
+			{
+				temp[i][j++] = A[row][col];
+
+				// Row is filled, so increase row index and 
+				// reset col index 
+				if (j == n - 1)
+				{
+					j = 0;
+					i++;
+				}
+			}
+		}
+	}
+}
+/* Recursive function for finding determinant of matrix.
+   n is current dimension of A[][]. */
+double  matrix::determinant(double **A, int n)
+{
+	if (this->getColumns() != this->getRows())
+	{
+		throw std::invalid_argument("matrix must be a square matrix to calculate determinant\n");
+	}
+	double D = 0; // Initialize result 
+
+	//  Base case : if matrix contains single element 
+	if (n == 1)
+		return A[0][0];
+
+	double **temp = new double*[this->getRows()];
+	for (int i = 0; i < this->getRows(); i++)
+	{
+		temp[i] = new double[this->getColumns()];
+	}
+	int sign = 1;  // To store sign multiplier 
+
+	 // Iterate for each element of first row 
+	for (int f = 0; f < n; f++)
+	{
+		// Getting Cofactor of A[0][f] 
+		getCofactor(A, temp, 0, f, n);
+		D += sign * A[0][f] * determinant(temp, n - 1);
+
+		// terms are to be added with alternate sign 
+		sign = -sign;
+	}
+
+	return D;
 }

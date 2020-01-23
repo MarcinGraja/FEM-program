@@ -16,10 +16,12 @@ class gridGenerator
 	}globalData;
 public:
 	gridGenerator(data *dataCopy);
+	void genGridManual();
 	void generateGrid();
 	double * getPosition(int i);
 	bool getBoundaryCondition(int i);
 	void printNodes();
 	void printElements();
+	void updateGrid();
 };
 

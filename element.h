@@ -2,15 +2,13 @@
 #include <vector>
 #include "matrix.h"
 #include "data.h"
-class node
+struct node
 {
 	int id;
-	double t;
 	double x;
 	double y;
+	double t;
 	bool boundaryCondition;
-	friend class gridGenerator;
-	friend class element;
 	node(int id, double t, double x, double y, bool boundaryCondition);
 	void print();
 	
@@ -25,14 +23,14 @@ class element
 	matrix P = matrix(4,1);
 	friend class gridGenerator;
 	element(int id, std::vector<node*> nodes);
+	matrix getHbc();
 	void print();
 public:
-	double ** getJacobian(double xi, double eta);
-	double getJacobianDeterminant(double xi, double eta);
-	double ** getInverseJacobian(double xi, double eta);
-	double getShapeFunctionValue(double xi, double eta, int index);
-	std::vector<matrix> getShapeFunctionDerivatives(double xi, double eta);
+	node *getNode(int i);
 	matrix getH();
+	matrix getC();
+
+	matrix getP();
 	static void setDataCopy(data *d)
 	{
 		globalData = d;

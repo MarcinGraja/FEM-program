@@ -125,6 +125,7 @@
     <ClInclude Include="gridGenerator.h" />
     <ClInclude Include="element.h" />
     <ClInclude Include="matrix.h" />
+    <ClInclude Include="helperFunctions.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
