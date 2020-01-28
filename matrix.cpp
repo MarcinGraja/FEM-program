@@ -1,5 +1,9 @@
 #include "matrix.h"
 #include <exception>
+#include "helperFunctions.h"
+#include <algorithm>
+#include <iostream>
+#include <Eigen/Dense>
 matrix::matrix(int x, int y)
 {
 	data.resize(x);
@@ -8,6 +12,18 @@ matrix::matrix(int x, int y)
 		data.at(i).resize(y);
 	}
 	
+}
+matrix::matrix(double *data, int rows, int columns)
+{
+	this->data.resize(rows);
+	for (int row = 0; row < rows; row++)
+	{
+		this->data[row].resize(columns);
+		for (int column = 0; column < columns; column++)
+		{
+			this->data.at(row).at(column) = data[row*columns + column];
+		}
+	}
 }
 matrix::matrix(double *data, int size)
 {
@@ -41,6 +57,7 @@ matrix matrix::operator*(matrix const &other)
 {
 	if (getColumns() != other.getRows())
 	{
+		std::cout << "this size: " << this->getSize() << " other size: " << other.getSize();
 		throw new std::invalid_argument("invalid size for matrix multiplication\n");
 	}
 	matrix m(getRows(), other.getColumns());
@@ -114,6 +131,10 @@ matrix matrix::transpose()
 	}
 	return m;
 }
+void matrix::addValue(int i, int j, double value)
+{
+	data.at(i).at(j) += value;
+}
 double matrix::getValue(int row, int column)
 {
 	return data.at(row).at(column);
@@ -126,12 +147,44 @@ std::string matrix::toString()
 		for (int column = 0; column < getColumns(); column++)
 
 		{
-			out += std::to_string(data.at(row).at(column)) + "\t";
+			out += std::to_string(data.at(row).at(column)) + " ";
 		}
 		out += '\n';
 	}
 	out += "\n";
 	return out;
+}
+double matrix::maxValue()
+{
+	double max = data.at(0).at(0);
+	for (std::vector<double> v : data)
+	{
+		for (double d : v)
+		{
+			if (max < d) max = d;
+		}
+	}
+	return max;
+}
+double matrix::minValue()
+{
+	double min = data.at(0).at(0);
+	for (std::vector<double> v : data)
+	{
+		for (double d : v)
+		{
+			if (min > d) min = d;
+		}
+	}
+	return min;
+}
+std::string matrix::getSize()
+{
+	return std::string(std::to_string(this->getRows()) + "x" + std::to_string(this->getColumns()));
+}
+std::string matrix::getSize() const
+{
+	return std::string(std::to_string(this->getRows()) + "x" + std::to_string(this->getColumns()));
 }
 matrix::matrix()
 {
@@ -151,64 +204,18 @@ bool matrix::operator==(const matrix &other)const
 matrix::~matrix()
 {
 }
-//shamelessly stolen from https://www.geeksforgeeks.org/adjoint-inverse-matrix/
-void getCofactor(double ** A, double** temp, int p, int q, int n)
+
+matrix matrix::inverse()
 {
-	int i = 0, j = 0;
-
-	// Looping for each element of the matrix 
-	for (int row = 0; row < n; row++)
+	if (this->getRows() != this->getColumns())
 	{
-		for (int col = 0; col < n; col++)
-		{
-			//  Copying into temporary matrix only those element 
-			//  which are not in given row and column 
-			if (row != p && col != q)
-			{
-				temp[i][j++] = A[row][col];
-
-				// Row is filled, so increase row index and 
-				// reset col index 
-				if (j == n - 1)
-				{
-					j = 0;
-					i++;
-				}
-			}
-		}
+		throw new std::invalid_argument("non square matrix cannot be inverted");
 	}
-}
-/* Recursive function for finding determinant of matrix.
-   n is current dimension of A[][]. */
-double  matrix::determinant(double **A, int n)
-{
-	if (this->getColumns() != this->getRows())
-	{
-		throw std::invalid_argument("matrix must be a square matrix to calculate determinant\n");
-	}
-	double D = 0; // Initialize result 
-
-	//  Base case : if matrix contains single element 
-	if (n == 1)
-		return A[0][0];
-
-	double **temp = new double*[this->getRows()];
-	for (int i = 0; i < this->getRows(); i++)
-	{
-		temp[i] = new double[this->getColumns()];
-	}
-	int sign = 1;  // To store sign multiplier 
-
-	 // Iterate for each element of first row 
-	for (int f = 0; f < n; f++)
-	{
-		// Getting Cofactor of A[0][f] 
-		getCofactor(A, temp, 0, f, n);
-		D += sign * A[0][f] * determinant(temp, n - 1);
-
-		// terms are to be added with alternate sign 
-		sign = -sign;
-	}
-
-	return D;
+	Eigen::MatrixXd eMatrix(data.size(), data[0].size());
+	for (int i = 0; i < data.size(); ++i)
+		eMatrix.row(i) = Eigen::VectorXd::Map(&data[i][0], data[0].size());
+	double *out = new double[this->getRows() * this->getColumns()];
+	Eigen::Map<Eigen::MatrixXd>(&out[0], this->getRows(), this->getColumns()) = eMatrix.inverse();
+	matrix mOut(out, this->getRows(), this->getColumns());
+	return mOut;
 }

@@ -18,7 +18,7 @@ class element
 	static data *globalData;
 	int id;
 	std::vector <node*> nodes;
-	matrix H = matrix(4,4) ;
+	matrix H = matrix(4,4);
 	matrix Hbc = matrix(4,4);
 	matrix P = matrix(4,1);
 	friend class gridGenerator;
@@ -36,5 +36,3 @@ public:
 		globalData = d;
 	}
 };
-
-

@@ -16,13 +16,19 @@ public:
 	matrix operator+(matrix const &other);
 	matrix operator-(matrix const &other);
 	matrix transpose();
+	void addValue(int i, int j, double value);
 	double getValue(int row, int column);
 	std::string toString();
 	
+	double maxValue();
+	double minValue();
+	std::string getSize()const;
+	std::string getSize();
 	int getRows()const;
 	int getColumns()const;
 	bool operator==(const matrix &other) const;
 	~matrix();
-	double determinant(double ** A, int n);
+	matrix inverse();
+	matrix(double *data, int rows, int columns);
 };
 

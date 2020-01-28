@@ -35,12 +35,12 @@ public:
 		timeStep = 50;
 		ambientTemperature = 1200;
 		alpha = 300;
-		H = 1.5;
-		W = 0.5;
-		nodeCountH = 5;
+		H = 0.1;
+		W = 0.1;
+		nodeCountH = 4;
 		nodeCountW = 4;
-		k = 25;
 		c = 700;
+		k = 25;
 		rho = 7800;
 		
 		
@@ -48,6 +48,21 @@ public:
 		double p2 = -p1;
 		integrationPoints.push_back(integrationPoint(p1, 1.0));
 		integrationPoints.push_back(integrationPoint(p2, 1.0));
+	}
+	void initializeData2()
+	{
+		initialTemp = 100;
+		simulationTime = 100;
+		timeStep = 1;
+		ambientTemperature = 1200;
+		alpha = 300;
+		H = 0.1;
+		W = 0.1;
+		nodeCountH = 31;
+		nodeCountW = 31;
+		c = 700;
+		k = 25;
+		rho = 7800;
 	}
 };
 

@@ -6,6 +6,7 @@ class gridGenerator
 {
 	std::vector <node*> nodes;
 	std::vector <element> elements;
+	matrix H, C, P, temperature, CdT, finalH;
 	static data *dataCopy;
 	struct
 	{
@@ -22,6 +23,7 @@ public:
 	bool getBoundaryCondition(int i);
 	void printNodes();
 	void printElements();
-	void updateGrid();
+	void prepareMatrices();
+	void run();
 };
 

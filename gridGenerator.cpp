@@ -1,5 +1,6 @@
 ﻿#pragma strict_gs_check(on)
 #include "gridGenerator.h"
+#include <iostream>
 data *gridGenerator::dataCopy;
 gridGenerator::gridGenerator(data *dataCopy)
 {
@@ -19,7 +20,6 @@ void gridGenerator::genGridManual()
 }
 void gridGenerator::generateGrid()
 {
-	//genGridManual();	//please delete this
 	int nodeCount = globalData.nodeCountH * globalData.nodeCountW;
 	nodes.reserve(nodeCount);
 	for (int i = 0; i < nodeCount; i++)
@@ -94,13 +94,66 @@ void gridGenerator::printElements()
 	}
 }
 
-void gridGenerator::updateGrid()
+void gridGenerator::prepareMatrices()
 {
-	matrix H(this->nodes.size(), this->nodes.size());
-	matrix C(this->nodes.size(), this->nodes.size());
+	std::cout << "preparing matrices\n";
+	double *data = new double[this->nodes.size()];
+	for (int i = 0; i < this->nodes.size(); i++)
+	{
+		data[i] = dataCopy->initialTemp;
+	}
+	temperature = matrix(data, this->nodes.size());
+	delete[] data;
+	H = matrix(this->nodes.size(), this->nodes.size());
+	C = matrix(this->nodes.size(), this->nodes.size());
+	P = matrix(this->nodes.size(), 1);
 	for (element e : elements)
 	{
 		matrix Hl = e.getH();
+		matrix Pl = e.getP();
+		for (int i = 0; i < 4; i++)
+		{
+			
+			P.addValue(e.nodes.at(i)->id, 0, Pl.getValue(i, 0));
+			for (int j = 0; j < 4; j++)
+			{
+				
+				H.addValue(e.nodes.at(i)->id, e.nodes.at(j)->id, Hl.getValue(i, j));
 
+				matrix Cl = e.getC();
+				C.addValue(e.nodes.at(i)->id, e.nodes.at(j)->id, Cl.getValue(i, j));
+
+				
+			}
+		}
+	}
+	std::cout << "C, H, P matrices initialization complete\n";
+	//std::cout << "C:\n" << C.toString();
+	CdT = C * (1.0 / dataCopy->timeStep);
+	matrix HaddCdT = H + CdT;
+	matrix PaddCdTtimesT = CdT * temperature - P;
+	std::cout << "starting inversion...\n";
+	finalH = (H + CdT).inverse();
+	/*std::cout << "H:\n" << H.toString() << "C:\n" << C.toString() << "P:\n" << P.toString();
+	std::cout << "C/dT:\n" << CdT.toString();
+	std::cout << "H + C/dT: \n" << (HaddCdT).toString() << "P + C/dt * temperature\n" << PaddCdTtimesT.toString();
+	std::cout << '\n';*/
+	std::cout << "matrix initialization complete\n";
+}
+
+void gridGenerator::run()
+{
+	double currentTime = 0;
+	std::cout << "time: \t" << currentTime << " min temp:\t" << temperature.minValue() << " max temp:\t" << temperature.maxValue() << '\n';
+	while (currentTime < dataCopy->simulationTime)
+	{
+		/*matrix tmp = temperature - P;
+		tmp = CdT * tmp;
+		tmp = finalH * tmp;
+		/**/
+		temperature = finalH * (CdT * temperature - P);
+		//std::cout << temperature.toString();
+		currentTime += dataCopy->timeStep;
+		std::cout << "time: \t" << currentTime << " min temp:\t" << temperature.minValue() << " max temp:\t" << temperature.maxValue() << '\n';
 	}
 }

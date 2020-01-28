@@ -11,7 +11,9 @@ int main()
 	grid.generateGrid();
 	std::cout.precision(4);
 	std::cout << std::fixed;
-	grid.printNodes();
-	grid.printElements();
+	//grid.printNodes();
+	//grid.printElements();
+	grid.prepareMatrices();
+	grid.run();
 	std::cin.ignore();
 }

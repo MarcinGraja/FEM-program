@@ -40,7 +40,6 @@ matrix element::getH()
 	{
 		for (integrationPoint p2 : globalData->integrationPoints) {
 			std::vector <matrix> shapeFunctionsDerivatives = shapeFunctions::getDerivatives(this, p1.x, p2.x);
-			//std::cout << "calculating at " << p.xi << "," << p.eta << '\n';
 			double jacobianDeterminant = jacobian::getJacobianDeterminant(this, p1.x, p2.x);
 			double dNdX[4];
 			double dNdY[4];
@@ -52,13 +51,7 @@ matrix element::getH()
 
 			matrix d1(dNdX, 4);
 			matrix d2(dNdY, 4);
-			//std::cout << "jacobian:\n" << matrix(jacobian::getJacobian(this, p1.x, p2.x), 2,2).toString();
-			//std::cout << "pc: (" << p1.x << "," << p2.x << ")\n";
-			//std::cout << "dNdX^2:\n" << (d1*d1.transpose()).toString() << "dNdY^2:\n" << (d2*d2.transpose()).toString() << "|J|:\t" << jacobianDeterminant << '\n';
-			//std::cout << "H before addition\n:" << H.toString();
 			H = H + (d1 * d1.transpose() + d2 * d2.transpose()) * jacobianDeterminant * p1.weight * p2.weight;
-			//std::cout << "H after addition\n:" << H.toString();
-			//std::cout << '\n';
 		}
 	}
 	H = H * globalData->k;
@@ -136,7 +129,7 @@ matrix element::getP()
 			{
 			case 0:	//bottom
 				changeXi = false;
-				changeTo = 0;
+				changeTo = -1;
 				break;
 			case 1:	//right
 				changeXi = true;
@@ -148,11 +141,12 @@ matrix element::getP()
 				break;
 			case 3:	//left
 				changeXi = true;
-				changeTo = 0;
+				changeTo = -1;
 				break;
 			}
 			for (integrationPoint p : globalData->integrationPoints)
 			{
+
 				matrix shapeFunctions;
 				if (changeXi) shapeFunctions = shapeFunctions::getShapeFunctionsValues(changeTo, p.x);
 				else shapeFunctions = shapeFunctions::getShapeFunctionsValues(p.x, changeTo);
